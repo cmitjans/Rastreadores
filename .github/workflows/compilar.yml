@@ -34,7 +34,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="1.$(git rev-list --count HEAD)"
-          gh release delete ultima --yes --cleanup-tag || true
-          gh release create ultima build/Rastreadores.apk \
-            --title "Rastreadores $VERSION" \
-            --notes "Versión más reciente. Descarga Rastreadores.apk en el celular e instálalo encima de la anterior."
+          NOTAS="Versión más reciente. Descarga Rastreadores.apk en el celular e instálalo encima de la anterior."
+          if gh release view ultima > /dev/null 2>&1; then
+            gh release upload ultima build/Rastreadores.apk --clobber
+            gh release edit ultima --title "Rastreadores $VERSION" --notes "$NOTAS"
+          else
+            gh release create ultima build/Rastreadores.apk --title "Rastreadores $VERSION" --notes "$NOTAS"
+          fi
