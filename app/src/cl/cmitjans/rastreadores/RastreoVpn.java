@@ -66,6 +66,12 @@ public class RastreoVpn extends VpnService {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Fallos.instalar(this);
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
             shutdown();
@@ -103,12 +109,23 @@ public class RastreoVpn extends VpnService {
         FileInputStream in = new FileInputStream(tun.getFileDescriptor());
         byte[] buf = new byte[32767];
         while (running) {
-            int n;
-            try { n = in.read(buf); } catch (IOException e) { break; }
-            if (n <= 0) continue;
-            DnsPacket.Query q = DnsPacket.parse(buf, n);
-            if (q == null) continue;
-            pool.execute(() -> handle(q));
+            try {
+                int n = in.read(buf);
+                if (n <= 0) continue;
+                DnsPacket.Query q = DnsPacket.parse(buf, n);
+                if (q == null) continue;
+                ExecutorService p = pool;
+                if (p == null || p.isShutdown()) break;
+                p.execute(() -> {
+                    try { handle(q); } catch (Throwable t) { Fallos.guardar(this, t); }
+                });
+            } catch (IOException e) {
+                break; // la VPN se cerró
+            } catch (java.util.concurrent.RejectedExecutionException e) {
+                break; // se está deteniendo
+            } catch (Throwable t) {
+                Fallos.guardar(this, t); // anota el error y sigue funcionando
+            }
         }
     }
 

@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        Fallos.instalar(this);
         getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(BG);
 
@@ -69,6 +70,9 @@ public class MainActivity extends Activity {
                 + "análisis conocidos. Solo ve los nombres de los servidores, nunca el contenido de lo que se envía.", 14, MUTED);
         sub.setPadding(0, dp(6), 0, dp(16));
         root.addView(sub);
+
+        String fallo = Fallos.ultimo(this);
+        if (fallo != null) root.addView(tarjetaFallo(fallo), gap());
 
         toggle = button("Iniciar registro", ACCENT);
         toggle.setOnClickListener(v -> {
@@ -235,6 +239,39 @@ public class MainActivity extends Activity {
                 : "Toca \"Iniciar registro\". Android te pedirá permiso para crear una VPN: es local, el tráfico no sale a ningún servidor externo.", 14, MUTED);
         t.setPadding(0, dp(8), 0, 0);
         list.addView(t);
+    }
+
+    /** Muestra el último error guardado, para poder copiarlo y enviarlo. */
+    private View tarjetaFallo(String fallo) {
+        LinearLayout c = card();
+        TextView h = text("La app se cerró por un error la última vez", 16, WARN);
+        h.setTypeface(Typeface.DEFAULT_BOLD);
+        c.addView(h);
+        TextView ex = text("Copia este detalle y envíalo para poder corregirlo. Solo contiene datos técnicos del error.", 13, MUTED);
+        ex.setPadding(0, dp(4), 0, dp(8));
+        c.addView(ex);
+        TextView det = text(fallo, 11, TEXT);
+        det.setTypeface(Typeface.MONOSPACE);
+        det.setTextIsSelectable(true);
+        det.setMaxLines(14);
+        c.addView(det);
+        LinearLayout row = new LinearLayout(this);
+        row.setPadding(0, dp(10), 0, 0);
+        Button copy = button("Copiar", ACCENT);
+        copy.setTextColor(Color.rgb(13, 21, 32));
+        copy.setOnClickListener(v -> {
+            android.content.ClipboardManager cm = getSystemService(android.content.ClipboardManager.class);
+            cm.setPrimaryClip(android.content.ClipData.newPlainText("Error de Rastreadores", fallo));
+            copy.setText("Copiado");
+        });
+        Button dismiss = button("Descartar", BG);
+        dismiss.setOnClickListener(v -> { Fallos.borrar(this); c.setVisibility(View.GONE); });
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40));
+        lp.rightMargin = dp(8);
+        row.addView(copy, lp);
+        row.addView(dismiss, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40)));
+        c.addView(row);
+        return c;
     }
 
     // --- pequeñas ayudas de diseño ---
