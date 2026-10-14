@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rastreadores: muestra a qué servidores intenta conectarse cada app.
+  Permisos (la lista completa):
+  - INTERNET: reenviar cada consulta DNS al servidor DNS de tu red para que las apps sigan funcionando.
+  - QUERY_ALL_PACKAGES: mostrar el nombre de la app que hizo cada consulta (en vez de un número).
+  - FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE: mantener el registro activo en segundo plano.
+  - POST_NOTIFICATIONS: el aviso "Registrando conexiones" con el botón Detener.
+  La VPN (BIND_VPN_SERVICE) no es un permiso de la app: Android te pide confirmarla al iniciar.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cl.cmitjans.rastreadores">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:label="Rastreadores"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".RastreoVpn"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="VPN local que registra consultas DNS para mostrar rastreadores" />
+        </service>
+    </application>
+</manifest>
