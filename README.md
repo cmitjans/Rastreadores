@@ -26,6 +26,7 @@ Lo registrado se guarda solo en la memoria del teléfono y se borra al cerrar la
 | Permiso | Para qué |
 | --- | --- |
 | Internet | Reenviar cada consulta DNS al servidor DNS de tu red. Es la única conexión que hace. |
+| Ver estado de la red | Saber qué servidores DNS usa tu red (Wi‑Fi o datos). |
 | Ver apps instaladas | Mostrar el nombre de la app que hizo cada consulta. |
 | Servicio en primer plano | Mantener el registro activo en segundo plano. |
 | Notificaciones | El aviso "Registrando conexiones" con el botón Detener. |

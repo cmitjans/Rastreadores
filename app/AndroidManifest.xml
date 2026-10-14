@@ -3,6 +3,7 @@
   Rastreadores: muestra a qué servidores intenta conectarse cada app.
   Permisos (la lista completa):
   - INTERNET: reenviar cada consulta DNS al servidor DNS de tu red para que las apps sigan funcionando.
+  - ACCESS_NETWORK_STATE: saber qué servidores DNS usa tu red (Wi‑Fi o datos) para reenviarles las consultas.
   - QUERY_ALL_PACKAGES: mostrar el nombre de la app que hizo cada consulta (en vez de un número).
   - FOREGROUND_SERVICE y FOREGROUND_SERVICE_SPECIAL_USE: mantener el registro activo en segundo plano.
   - POST_NOTIFICATIONS: el aviso "Registrando conexiones" con el botón Detener.
@@ -12,6 +13,7 @@
     package="cl.cmitjans.rastreadores">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />

@@ -165,16 +165,20 @@ public class RastreoVpn extends VpnService {
     /** Servidores DNS de la red real (Wi‑Fi o datos), sin contar esta VPN. */
     private List<InetAddress> findUpstreamDns() {
         List<InetAddress> list = new ArrayList<>();
-        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
-        Network active = cm.getActiveNetwork();
-        for (Network n : cm.getAllNetworks()) {
-            NetworkCapabilities nc = cm.getNetworkCapabilities(n);
-            if (nc == null || nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) continue;
-            if (!nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) continue;
-            LinkProperties lp = cm.getLinkProperties(n);
-            if (lp == null) continue;
-            List<InetAddress> dns = lp.getDnsServers();
-            if (n.equals(active)) list.addAll(0, dns); else list.addAll(dns);
+        try {
+            ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+            Network active = cm.getActiveNetwork();
+            for (Network n : cm.getAllNetworks()) {
+                NetworkCapabilities nc = cm.getNetworkCapabilities(n);
+                if (nc == null || nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) continue;
+                if (!nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) continue;
+                LinkProperties lp = cm.getLinkProperties(n);
+                if (lp == null) continue;
+                List<InetAddress> dns = lp.getDnsServers();
+                if (n.equals(active)) list.addAll(0, dns); else list.addAll(dns);
+            }
+        } catch (RuntimeException e) {
+            Fallos.guardar(this, e); // sin datos de la red, se usan los servidores de respaldo
         }
         // Respaldo si la red no informa sus servidores: Cloudflare y Google.
         try {
